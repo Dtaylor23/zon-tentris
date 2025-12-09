@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZON Tentris – Definitive Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 0 0, #111827 0, #020617 35%, #000000 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #e5e7eb;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1180px;
+      padding: 1.2rem;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 0.7rem;
+      color: #9ca3af;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .logo {
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+
+    .logo span {
+      color: #ef4444;
+      text-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+
+    .tag {
+      font-size: 0.78rem;
+      padding: 0.12rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      background: radial-gradient(circle at 0 0, rgba(24, 24, 27, 0.9), rgba(15, 23, 42, 0.96));
+      color: #fecaca;
+    }
+
+    .hud-right {
+      display: flex;
+      gap: 0.9rem;
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .hud-right span strong {
+      color: #f9fafb;
+    }
+
+    .mode-pill {
+      font-size: 0.72rem;
+      padding: 0.12rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+      background: rgba(24, 24, 27, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .combo-indicator {
+      font-size: 0.78rem;
+      color: #fca5a5;
+      text-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+    }
+
+    .game-wrap {
+      display: flex;
+      gap: 1rem;
+      background:
+        radial-gradient(circle at 0 0, rgba(248, 113, 113, 0.22), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(248, 113, 113, 0.15), transparent 55%),
+        #020617;
+      border-radius: 16px;
+      padding: 1rem;
+      border: 1px solid #111827;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.95);
+    }
+
+    canvas {
+      display: block;
+      background:
+        radial-gradient(circle at 50% 10%, #020617 0, #020617 40%, #020617 100%);
+      border-radius: 10px;
+    }
+
+    .game-wrapper-relative {
+      position: relative;
+    }
+
+    .side-panel {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0.3rem 0.2rem 0.2rem 0.8rem;
+    }
+
+    .panel-block {
+      border-radius: 10px;
+      padding: 0.6rem 0.7rem;
+      background: rgba(3, 7, 18, 0.96);
+      border: 1px solid #111827;
+      margin-bottom: 0.6rem;
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 0.4rem;
+    }
+
+    .next-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0.7rem;
+    }
+
+    .next-canvas {
+      background: #020617;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(248, 113, 113, 0.35);
+    }
+
+    .controls-text {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      line-height: 1.4;
+    }
+
+    .controls-text strong {
+      color: #e5e7eb;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 0, rgba(3, 7, 18, 0.96), rgba(0, 0, 0, 0.98));
+      border-radius: 12px;
+      border: 1px solid #111827;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .overlay h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fecaca;
+      text-shadow: 0 0 14px rgba(248, 113, 113, 0.95);
+    }
+
+    .overlay p {
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      margin-bottom: 0.3rem;
+      max-width: 19rem;
+    }
+
+    .overlay small {
+      font-size: 0.78rem;
+      color: #fca5a5;
+      margin-top: 0.2rem;
+    }
+
+    #pause-overlay {
+      background: radial-gradient(circle at 50% 0, rgba(0, 0, 0, 0.86), rgba(0, 0, 0, 0.94));
+      padding: 1rem;
+      inset: 3rem;
+    }
+
+    #pause-overlay h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+      color: #fecaca;
+    }
+
+    .fever-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #111827;
+      overflow: hidden;
+      margin-bottom: 0.35rem;
+    }
+
+    #fever-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f97373, #fb7185);
+      box-shadow: 0 0 10px rgba(248, 113, 113, 0.8);
+    }
+
+    .fever-label {
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      color: #9ca3af;
+      margin-bottom: 0.1rem;
+    }
+
+    .fever-label strong {
+      color: #fecaca;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.25rem 0.6rem;
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .stats-grid span strong {
+      color: #e5e7eb;
+    }
+
+    .leaderboard,
+    .achievements {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .leaderboard li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.12rem 0;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .leaderboard li:last-child {
+      border-bottom: none;
+    }
+
+    .leaderboard .score {
+      color: #fecaca;
+    }
+
+    .achievements li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.1rem 0;
+    }
+
+    .achievements .earned {
+      color: #f97373;
+      text-shadow: 0 0 8px rgba(248, 113, 113, 0.8);
+    }
+
+    .achievements .status {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+  </style>
+</head>
+<body>
+  <!-- optional bg music: put zon_bgm.mp3 in same folder -->
+  <audio id="bgm" src="zon_bgm.mp3" loop></audio>
+
+  <div class="shell">
+    <div class="hud">
+      <div class="hud-left">
+        <div class="logo">ZON <span>TENTRIS</span></div>
+        <div class="tag">black & red · endless / sprint / attack</div>
+      </div>
+      <div class="hud-right">
+        <span>Score: <strong id="score">0</strong></span>
+        <span>Lines: <strong id="lines">0</strong></span>
+        <span>Level: <strong id="level">1</strong></span>
+        <span>Best: <strong id="best">0</strong></span>
+        <span id="time-label">Time: <strong>0:00</strong></span>
+        <span class="mode-pill" id="mode-pill">Mode: ENDLESS</span>
+        <span class="combo-indicator" id="combo-text"></span>
+      </div>
+    </div>
+
+    <div class="game-wrap">
+      <div class="game-wrapper-relative">
+        <!-- Square canvas: 640x640 (board centered inside) -->
+        <canvas id="board" width="640" height="640"></canvas>
+
+        <div class="overlay" id="main-overlay">
+          <h1>ZON TENTRIS</h1>
+          <p>Stack the red ZON blocks. Clear lines, chain combos, and survive as the speed climbs.</p>
+          <p class="controls-text" style="margin-top:0.3rem;">
+            <strong>← / →</strong> Move · <strong>↑</strong> Rotate · <strong>↓</strong> Soft Drop ·
+            <strong>Space</strong> Hard Drop · <strong>C</strong> Hold · <strong>P</strong> Pause · <strong>M</strong> Music
+          </p>
+          <p class="controls-text" style="margin-top:0.3rem;">
+            Modes: <strong>E</strong> Endless · <strong>4</strong> 40-Line Sprint · <strong>T</strong> 2-Min Attack
+          </p>
+          <small>Press any arrow key or Space to start.</small>
+        </div>
+
+        <div class="overlay" id="pause-overlay" style="display:none;">
+          <h2>Paused</h2>
+          <p class="controls-text">
+            <strong>P</strong> Resume · <strong>R</strong> Restart<br />
+            <strong>E</strong> Endless · <strong>4</strong> Sprint · <strong>T</strong> Attack
+          </p>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <div class="panel-block">
+          <div class="panel-title">Next / Hold / Fever</div>
+          <div class="next-wrap">
+            <div>
+              <div style="font-size:0.75rem;color:#9ca3af;margin-bottom:0.1rem;">Next (3)</div>
+              <canvas id="next" width="96" height="180" class="next-canvas"></canvas>
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:#9ca3af;margin-bottom:0.1rem;">Hold (C)</div>
+              <canvas id="hold" width="96" height="96" class="next-canvas"></canvas>
+            </div>
+          </div>
+          <div class="fever-label" style="margin-top:0.45rem;">
+            <span>ZON Fever</span>
+            <span><strong id="fever-text">0%</strong></span>
+          </div>
+          <div class="fever-track">
+            <div id="fever-fill"></div>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <div class="panel-title">Stats & Controls</div>
+          <div class="stats-grid" style="margin-bottom:0.5rem;">
+            <span>Mode: <strong id="stat-mode">Endless</strong></span>
+            <span>Pieces: <strong id="stat-pieces">0</strong></span>
+            <span>Time: <strong id="stat-time">0:00</strong></span>
+            <span>Max Combo: <strong id="stat-maxcombo">0</strong></span>
+          </div>
+          <div class="controls-text">
+            <strong>Move:</strong> ← / → / ↓ (hold to slide)<br />
+            <strong>Rotate:</strong> ↑<br />
+            <strong>Drop:</strong> Space<br />
+            <strong>Hold Piece:</strong> C<br />
+            <strong>Pause:</strong> P<br />
+            <strong>Music:</strong> M<br />
+            <strong>Mode:</strong> E / 4 / T<br />
+            <strong>Difficulty:</strong> 1=Chill · 2=Normal · 3=Hardcore
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <div class="panel-title">Best Runs</div>
+          <ul class="leaderboard" id="leaderboard-list">
+            <!-- filled by JS -->
+          </ul>
+        </div>
+
+        <div class="panel-block">
+          <div class="panel-title">ZON Badges</div>
+          <ul class="achievements" id="achievements-list">
+            <!-- filled by JS -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- DOM & canvas ---
+    const boardCanvas = document.getElementById("board");
+    const btx = boardCanvas.getContext("2d");
+    const nextCanvas = document.getElementById("next");
+    const ntx = nextCanvas.getContext("2d");
+    const holdCanvas = document.getElementById("hold");
+    const htx = holdCanvas.getContext("2d");
+
+    const mainOverlay = document.getElementById("main-overlay");
+    const pauseOverlay = document.getElementById("pause-overlay");
+
+    const scoreEl = document.getElementById("score");
+    const linesEl = document.getElementById("lines");
+    const levelEl = document.getElementById("level");
+    const bestEl = document.getElementById("best");
+    const timeLabel = document.getElementById("time-label");
+    const modePill = document.getElementById("mode-pill");
+    const comboText = document.getElementById("combo-text");
+
+    const feverFill = document.getElementById("fever-fill");
+    const feverText = document.getElementById("fever-text");
+
+    const statModeEl = document.getElementById("stat-mode");
+    const statPiecesEl = document.getElementById("stat-pieces");
+    const statTimeEl = document.getElementById("stat-time");
+    const statMaxComboEl = document.getElementById("stat-maxcombo");
+
+    const leaderboardList = document.getElementById("leaderboard-list");
+    const achievementsList = document.getElementById("achievements-list");
+
+    const bgmEl = document.getElementById("bgm");
+
+    // --- constants ---
+    const COLS = 10;
+    const ROWS = 20;
+    const BLOCK = 32;
+    const BOARD_PIXEL_WIDTH = COLS * BLOCK;
+    const BOARD_PIXEL_HEIGHT = ROWS * BLOCK;
+    const OFFSET_X = (boardCanvas.width - BOARD_PIXEL_WIDTH) / 2;
+    const OFFSET_Y = (boardCanvas.height - BOARD_PIXEL_HEIGHT) / 2;
+
+    const DIFFICULTIES = {
+      chill:   { label: "CHILL",   baseInterval: 1400, minInterval: 700,  step: 30  },
+      normal:  { label: "NORMAL",  baseInterval: 1000, minInterval: 220,  step: 70  },
+      hardcore:{ label: "HARDCORE",baseInterval: 800,  minInterval: 90,   step: 110 }
+    };
+    let difficulty = "normal";
+
+    const GAME_MODES = {
+      endless: "Endless",
+      sprint: "40-Line Sprint",
+      attack: "2-Min Attack"
+    };
+    let gameMode = "endless";
+
+    // DAS / ARR
+    const DAS_DELAY = 150;    // ms before auto-repeat
+    const ARR_INTERVAL = 40;  // ms between repeats
+
+    // garbage
+    const GARBAGE_INTERVAL = {
+      chill: 26000,
+      normal: 22000,
+      hardcore: 18000
+    };
+
+    // Board: 0 or {color, type}
+    let board = [];
+
+    // Shapes
+    const SHAPES = {
+      I: [
+        [0,0,0,0],
+        [1,1,1,1],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      O: [
+        [0,1,1,0],
+        [0,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      T: [
+        [0,1,0,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      S: [
+        [0,1,1,0],
+        [1,1,0,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      Z: [
+        [1,1,0,0],
+        [0,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      J: [
+        [1,0,0,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      L: [
+        [0,0,1,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ],
+      X: [
+        [0,1,0,0],
+        [1,1,1,0],
+        [0,1,0,0],
+        [0,0,0,0]
+      ],
+      U: [
+        [1,0,1,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+      ]
+    };
+
+    const COLORS = {
+      I: "#f87171",
+      O: "#ef4444",
+      T: "#dc2626",
+      S: "#fb7185",
+      Z: "#f97373",
+      J: "#fecaca",
+      L: "#fca5a5",
+      X: "#ef4444",
+      U: "#f97373"
+    };
+
+    // 7-bag RNG (with extra ZON shapes)
+    let pieceBag = [];
+    function refillBag() {
+      pieceBag = Object.keys(SHAPES);
+      for (let i = pieceBag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pieceBag[i], pieceBag[j]] = [pieceBag[j], pieceBag[i]];
+      }
+    }
+    function drawFromBag() {
+      if (pieceBag.length === 0) refillBag();
+      return pieceBag.pop();
+    }
+    function randomPieceType() {
+      return drawFromBag();
+    }
+
+    // piece state
+    let currentPiece = null;
+    let nextQueue = []; // 3 upcoming
+    let holdPieceType = null;
+    let holdLocked = false;
+
+    // game state
+    let score = 0;
+    let lines = 0;
+    let level = 1;
+    let best = 0;
+
+    let dropInterval = 1000;
+    let lastDropTime = 0;
+    let lastFrameTime = 0;
+    let fallProgress = 0;
+
+    let running = false;
+    let paused = false;
+    let gameOver = false;
+    let started = false;
+
+    // timers / stats
+    let elapsedMs = 0;
+    let timeLeftMs = 120000; // for attack mode
+    let initialTimeLeftMs = 120000;
+    let garbageTimer = 0;
+    let runRecorded = false;
+
+    // combo / fever
+    let combo = 0;
+    let lastClearHadLines = false;
+    let comboTimer = 0;
+    let maxCombo = 0;
+
+    let feverMeter = 0;     // 0..100
+    let feverActive = false;
+    let feverTimer = 0;
+
+    // FX
+    let flashRows = [];
+    let flashTimer = 0;
+    let shakeTimer = 0;
+    let shakeMag = 0;
+    let gameOverAnim = 0; // 0..1, fade overlay
+
+    // stats
+    let totalPieces = 0;
+
+    // DAS/ARR state
+    let moveDir = 0;       // -1, 0, 1
+    let moveHeldTime = 0;
+    let moveRepeatTime = 0;
+
+    // Audio
+    let audioCtx = null;
+    let musicOn = false;
+
+    const keys = {};
+
+    // leaderboard & achievements
+    let leaderboard = [];
+    const ACHIEVEMENT_DEFS = [
+      { id: "tetris",   label: "Hit a Tetris (4-line clear)", earned: false },
+      { id: "combo3",   label: "Reach combo x3 or higher",    earned: false },
+      { id: "hardcore10", label: "Hardcore: reach level 10",  earned: false }
+    ];
+
+    // --- storage load ---
+    if (window.localStorage) {
+      const savedBest = localStorage.getItem("zonTentrisBest");
+      if (savedBest) {
+        best = parseInt(savedBest, 10) || 0;
+        bestEl.textContent = best;
+      }
+      const savedLB = localStorage.getItem("zonTentrisLeaderboard");
+      if (savedLB) {
+        try {
+          leaderboard = JSON.parse(savedLB) || [];
+        } catch {}
+      }
+      const savedAch = localStorage.getItem("zonTentrisAchievements");
+      if (savedAch) {
+        try {
+          const arr = JSON.parse(savedAch) || [];
+          for (const def of ACHIEVEMENT_DEFS) {
+            if (arr.includes(def.id)) def.earned = true;
+          }
+        } catch {}
+      }
+    }
+
+    // --- audio helpers ---
+    function initAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+    }
+    function playBeep(freq, duration = 0.08, gainVal = 0.02, type = "square") {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = gainVal;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+    function sfxRotate() { playBeep(520, 0.06, 0.015, "square"); }
+    function sfxDrop()   { playBeep(220, 0.04, 0.016, "square"); }
+    function sfxSoftDrop(){ playBeep(280, 0.03, 0.01, "square"); }
+    function sfxLineClear(linesCleared) {
+      const baseFreq = linesCleared === 4 ? 760 : 520;
+      playBeep(baseFreq, 0.08, 0.02, "sawtooth");
+      if (linesCleared >= 2) {
+        setTimeout(() => playBeep(baseFreq + 120, 0.07, 0.018, "sawtooth"), 60);
+      }
+    }
+    function sfxLevelUp() {
+      playBeep(620, 0.08, 0.02, "triangle");
+      setTimeout(() => playBeep(880, 0.08, 0.02, "triangle"), 80);
+    }
+    function toggleMusic() {
+      if (!bgmEl) return;
+      if (!audioCtx) initAudio();
+      if (!musicOn) {
+        bgmEl.volume = 0.35;
+        bgmEl.play().catch(() => {});
+        musicOn = true;
+      } else {
+        bgmEl.pause();
+        musicOn = false;
+      }
+    }
+
+    // --- difficulty & mode ---
+    function setDifficulty(mode) {
+      if (!DIFFICULTIES[mode]) return;
+      difficulty = mode;
+      updateDropInterval();
+    }
+    function updateDropInterval() {
+      const cfg = DIFFICULTIES[difficulty];
+      dropInterval = Math.max(cfg.minInterval, cfg.baseInterval - (level - 1) * cfg.step);
+    }
+
+    function setGameMode(mode) {
+      if (!GAME_MODES[mode]) return;
+      gameMode = mode;
+      statModeEl.textContent = GAME_MODES[mode];
+      modePill.textContent = "Mode: " + GAME_MODES[mode].toUpperCase();
+      if (mode === "attack") {
+        initialTimeLeftMs = 120000;
+        timeLeftMs = initialTimeLeftMs;
+      }
+    }
+
+    function resetTimersForMode() {
+      elapsedMs = 0;
+      if (gameMode === "attack") {
+        timeLeftMs = initialTimeLeftMs;
+      }
+      garbageTimer = GARBAGE_INTERVAL[difficulty];
+    }
+
+    // --- board helpers ---
+    function createBoard() {
+      board = [];
+      for (let r = 0; r < ROWS; r++) {
+        const row = new Array(COLS).fill(0);
+        board.push(row);
+      }
+    }
+
+    function initQueue() {
+      nextQueue = [];
+      for (let i = 0; i < 3; i++) {
+        nextQueue.push(randomPieceType());
+      }
+    }
+
+    function newPiece(forceType = null) {
+      let type;
+      if (forceType) {
+        type = forceType;
+      } else {
+        if (!nextQueue || nextQueue.length < 3) initQueue();
+        type = nextQueue.shift();
+        nextQueue.push(randomPieceType());
+      }
+
+      currentPiece = {
+        type,
+        shape: SHAPES[type].map(row => row.slice()),
+        x: 3,
+        y: 0
+      };
+      totalPieces++;
+      holdLocked = false;
+      lastDropTime = performance.now();
+      fallProgress = 0;
+
+      if (collision(currentPiece.shape, currentPiece.x, currentPiece.y)) {
+        triggerGameOver("You reached the top.");
+        return;
+      }
+
+      drawNext();
+      drawHold();
+    }
+
+    function rotate(shape) {
+      const size = shape.length;
+      const newShape = [];
+      for (let y = 0; y < size; y++) {
+        newShape[y] = [];
+        for (let x = 0; x < size; x++) {
+          newShape[y][x] = shape[size - x - 1][y];
+        }
+      }
+      return newShape;
+    }
+
+    function collision(shape, x, y) {
+      for (let r = 0; r < shape.length; r++) {
+        for (let c = 0; c < shape[r].length; c++) {
+          if (!shape[r][c]) continue;
+          const newX = x + c;
+          const newY = y + r;
+          if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
+          if (newY >= 0 && board[newY][newX]) return true;
+        }
+      }
+      return false;
+    }
+
+    function mergePiece() {
+      const { shape, x, y, type } = currentPiece;
+      for (let r = 0; r < shape.length; r++) {
+        for (let c = 0; c < shape[r].length; c++) {
+          if (!shape[r][c]) continue;
+          const boardY = y + r;
+          const boardX = x + c;
+          if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+            board[boardY][boardX] = { color: COLORS[type], type };
+          }
+        }
+      }
+      clearLines();
+      holdLocked = false;
+      newPiece();
+    }
+
+    function addGarbageRow() {
+      // remove top row
+      board.shift();
+      // new garbage row with one hole
+      const row = [];
+      const hole = Math.floor(Math.random() * COLS);
+      for (let c = 0; c < COLS; c++) {
+        if (c === hole) {
+          row.push(0);
+        } else {
+          row.push({ color: "#4b1111", type: "G" });
+        }
+      }
+      board.push(row);
+    }
+
+    function clearLines() {
+      let linesCleared = 0;
+      const clearedIndices = [];
+
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (board[r].every(cell => cell !== 0)) {
+          board.splice(r, 1);
+          board.unshift(new Array(COLS).fill(0));
+          linesCleared++;
+          clearedIndices.push(r);
+          r++;
+        }
+      }
+
+      if (linesCleared > 0) {
+        if (lastClearHadLines) combo++;
+        else combo = 1;
+        lastClearHadLines = true;
+        comboTimer = 1500;
+        if (combo > maxCombo) maxCombo = combo;
+
+        let base = [0, 100, 300, 500, 800][linesCleared] || 800;
+        let comboMult = 1 + 0.25 * (combo - 1);
+        let feverMult = feverActive ? 2 : 1;
+        score += Math.floor(base * level * comboMult * feverMult);
+
+        const oldLevel = level;
+        lines += linesCleared;
+        if (gameMode !== "sprint") {
+          level = 1 + Math.floor(lines / 10);
+        }
+        updateDropInterval();
+
+        if (score > best) {
+          best = score;
+          if (window.localStorage) {
+            localStorage.setItem("zonTentrisBest", best);
+          }
+        }
+
+        // ZON Fever gain
+        let gain = linesCleared * 15 + (combo > 1 ? 5 * combo : 0);
+        feverMeter = Math.min(100, feverMeter + gain);
+        if (!feverActive && feverMeter >= 100) {
+          feverActive = true;
+          feverTimer = 10000;
+        }
+
+        flashRows = clearedIndices;
+        flashTimer = 220;
+        shakeTimer = 200;
+        shakeMag = linesCleared >= 3 ? 8 : 4;
+        sfxLineClear(linesCleared);
+        if (level > oldLevel && gameMode === "endless") {
+          sfxLevelUp();
+        }
+
+        // Achievements
+        if (linesCleared >= 4) earnAchievement("tetris");
+        if (combo >= 3) earnAchievement("combo3");
+        if (difficulty === "hardcore" && level >= 10) earnAchievement("hardcore10");
+
+        updateHUD();
+
+        // Sprint completion
+        if (gameMode === "sprint" && lines >= 40) {
+          triggerGameOver("Sprint complete! 40 lines cleared.");
+        }
+      } else {
+        lastClearHadLines = false;
+        combo = 0;
+      }
+    }
+
+    function updateHUD() {
+      scoreEl.textContent = score;
+      linesEl.textContent = lines;
+      levelEl.textContent = level;
+      bestEl.textContent = best;
+
+      if (combo > 1 && comboTimer > 0) {
+        comboText.textContent = "COMBO x" + combo.toFixed(2);
+      } else {
+        comboText.textContent = "";
+      }
+
+      const timeString = formatTime(elapsedMs);
+      const attackTimeString = gameMode === "attack"
+        ? formatTime(timeLeftMs)
+        : timeString;
+      timeLabel.innerHTML = "Time: <strong>" + attackTimeString + "</strong>";
+      statTimeEl.textContent = gameMode === "attack" ? attackTimeString : timeString;
+
+      statPiecesEl.textContent = totalPieces;
+      statMaxComboEl.textContent = maxCombo;
+
+      // fever UI
+      feverFill.style.width = feverMeter + "%";
+      feverText.textContent = Math.round(feverMeter) + "%";
+      if (feverActive) {
+        feverText.textContent = "FEVER!";
+      }
+    }
+
+    function formatTime(ms) {
+      if (ms < 0) ms = 0;
+      const totalSec = Math.floor(ms / 1000);
+      const min = Math.floor(totalSec / 60);
+      const sec = totalSec % 60;
+      return min + ":" + (sec < 10 ? "0" + sec : sec);
+    }
+
+    function resetGame() {
+      createBoard();
+      pieceBag = [];
+      initQueue();
+      score = 0;
+      lines = 0;
+      level = 1;
+      totalPieces = 0;
+      combo = 0;
+      lastClearHadLines = false;
+      comboTimer = 0;
+      maxCombo = 0;
+      flashRows = [];
+      flashTimer = 0;
+      shakeTimer = 0;
+      shakeMag = 0;
+      feverMeter = 0;
+      feverActive = false;
+      feverTimer = 0;
+      gameOverAnim = 0;
+      runRecorded = false;
+
+      resetTimersForMode();
+      lastDropTime = 0;
+      lastFrameTime = 0;
+      fallProgress = 0;
+      currentPiece = null;
+      holdPieceType = null;
+      holdLocked = false;
+      running = false;
+      paused = false;
+      gameOver = false;
+      started = false;
+
+      mainOverlay.style.display = "flex";
+      mainOverlay.querySelector("h1").textContent = "ZON TENTRIS";
+      mainOverlay.querySelector("p").textContent =
+        "Stack the red ZON blocks. Clear lines, chain combos, and survive as the speed climbs.";
+
+      pauseOverlay.style.display = "none";
+
+      updateDropInterval();
+      updateHUD();
+      drawBoard(0);
+      drawNext();
+      drawHold();
+      renderLeaderboard();
+      renderAchievements();
+    }
+
+    // --- hold ---
+    function holdCurrentPiece() {
+      if (!currentPiece || holdLocked) return;
+      const curType = currentPiece.type;
+      if (holdPieceType === null) {
+        holdPieceType = curType;
+        newPiece();
+      } else {
+        const swapType = holdPieceType;
+        holdPieceType = curType;
+        newPiece(swapType);
+      }
+      holdLocked = true;
+      drawHold();
+      lastDropTime = performance.now();
+    }
+
+    // --- achievements & leaderboard ---
+    function earnAchievement(id) {
+      const def = ACHIEVEMENT_DEFS.find(a => a.id === id);
+      if (!def || def.earned) return;
+      def.earned = true;
+      if (window.localStorage) {
+        const earnedIds = ACHIEVEMENT_DEFS.filter(a => a.earned).map(a => a.id);
+        localStorage.setItem("zonTentrisAchievements", JSON.stringify(earnedIds));
+      }
+      renderAchievements();
+    }
+
+    function renderAchievements() {
+      achievementsList.innerHTML = "";
+      ACHIEVEMENT_DEFS.forEach(def => {
+        const li = document.createElement("li");
+        const label = document.createElement("span");
+        label.textContent = def.label;
+        const status = document.createElement("span");
+        status.className = "status";
+        if (def.earned) {
+          label.classList.add("earned");
+          status.textContent = "UNLOCKED";
+        } else {
+          status.textContent = "LOCKED";
+        }
+        li.appendChild(label);
+        li.appendChild(status);
+        achievementsList.appendChild(li);
+      });
+    }
+
+    function recordRun(reason) {
+      if (runRecorded) return;
+      runRecorded = true;
+      const entry = {
+        score,
+        lines,
+        level,
+        mode: gameMode,
+        difficulty,
+        timeMs: elapsedMs,
+        date: new Date().toISOString()
+      };
+      leaderboard.push(entry);
+      leaderboard.sort((a, b) => b.score - a.score);
+      leaderboard = leaderboard.slice(0, 5);
+      if (window.localStorage) {
+        localStorage.setItem("zonTentrisLeaderboard", JSON.stringify(leaderboard));
+      }
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      leaderboardList.innerHTML = "";
+      if (!leaderboard.length) {
+        const li = document.createElement("li");
+        li.textContent = "No runs yet. Touch the board.";
+        leaderboardList.appendChild(li);
+        return;
+      }
+      leaderboard.forEach((run, idx) => {
+        const li = document.createElement("li");
+        const left = document.createElement("span");
+        const right = document.createElement("span");
+        left.textContent =
+          (idx + 1) + ". " + GAME_MODES[run.mode] + " (" + run.difficulty + ")";
+        right.innerHTML =
+          "<span class='score'>" + run.score + "</span> pts · " +
+          run.lines + "L";
+        li.appendChild(left);
+        li.appendChild(right);
+        leaderboardList.appendChild(li);
+      });
+    }
+
+    function triggerGameOver(message) {
+      gameOver = true;
+      running = false;
+      gameOverAnim = 0;
+      recordRun(message);
+      mainOverlay.style.display = "flex";
+      mainOverlay.querySelector("h1").textContent = "GAME OVER";
+      mainOverlay.querySelector("p").textContent = message;
+    }
+
+    // --- input ---
+    window.addEventListener("keydown", (e) => {
+      const key = e.key;
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "p", "P", "c", "C", "m", "M", "e", "E", "4", "t", "T"].includes(key)) {
+        e.preventDefault();
+      }
+      const lower = key.toLowerCase();
+      keys[lower] = true;
+
+      // Difficulty
+      if (lower === "1") setDifficulty("chill");
+      else if (lower === "2") setDifficulty("normal");
+      else if (lower === "3") setDifficulty("hardcore");
+
+      // Mode switch (also resets)
+      if (["e", "4", "t"].includes(lower)) {
+        if (lower === "e") setGameMode("endless");
+        else if (lower === "4") setGameMode("sprint");
+        else if (lower === "t") setGameMode("attack");
+        resetGame();
+        return;
+      }
+
+      // Start game on first movement / drop
+      if (!started && !gameOver) {
+        if (["arrowleft","arrowright","arrowup","arrowdown"," "].includes(lower)) {
+          initAudio();
+          started = true;
+          running = true;
+          mainOverlay.style.display = "none";
+          if (!currentPiece) newPiece();
+        }
+      }
+
+      if (gameOver) {
+        if (lower === "r") resetGame();
+        return;
+      }
+
+      if (lower === "m") {
+        initAudio();
+        toggleMusic();
+        return;
+      }
+
+      if (lower === "p") {
+        paused = !paused;
+        pauseOverlay.style.display = paused ? "flex" : "none";
+        return;
+      }
+
+      if (!running || paused) return;
+
+      if (lower === "arrowleft") {
+        moveDir = -1;
+        moveHeldTime = 0;
+        moveRepeatTime = 0;
+        movePiece(-1, 0);
+      } else if (lower === "arrowright") {
+        moveDir = 1;
+        moveHeldTime = 0;
+        moveRepeatTime = 0;
+        movePiece(1, 0);
+      } else if (lower === "arrowdown") {
+        softDrop(true);
+      } else if (lower === "arrowup") {
+        rotatePiece();
+      } else if (lower === " ") {
+        hardDrop();
+      } else if (lower === "r") {
+        resetGame();
+      } else if (lower === "c") {
+        holdCurrentPiece();
+      }
+    }, { passive: false });
+
+    window.addEventListener("keyup", (e) => {
+      const lower = e.key.toLowerCase();
+      keys[lower] = false;
+      if (lower === "arrowleft" && moveDir === -1) {
+        moveDir = keys["arrowright"] ? 1 : 0;
+        moveHeldTime = 0;
+        moveRepeatTime = 0;
+      } else if (lower === "arrowright" && moveDir === 1) {
+        moveDir = keys["arrowleft"] ? -1 : 0;
+        moveHeldTime = 0;
+        moveRepeatTime = 0;
+      }
+    });
+
+    function movePiece(dx, dy) {
+      if (!currentPiece) return;
+      const { shape, x, y } = currentPiece;
+      if (!collision(shape, x + dx, y + dy)) {
+        currentPiece.x += dx;
+        currentPiece.y += dy;
+        drawBoard(fallProgress);
+      }
+    }
+
+    function softDrop(fromInput = false) {
+      if (!currentPiece) return;
+      const { shape, x, y } = currentPiece;
+      if (!collision(shape, x, y + 1)) {
+        currentPiece.y += 1;
+        if (fromInput) {
+          score += 1 * (feverActive ? 2 : 1);
+          sfxSoftDrop();
+          updateHUD();
+        }
+      } else {
+        mergePiece();
+      }
+      lastDropTime = performance.now();
+      fallProgress = 0;
+      drawBoard(fallProgress);
+    }
+
+    function hardDrop() {
+      if (!currentPiece) return;
+      const { shape } = currentPiece;
+      let dropped = 0;
+      while (!collision(shape, currentPiece.x, currentPiece.y + 1)) {
+        currentPiece.y += 1;
+        dropped++;
+      }
+      if (dropped > 0) {
+        score += 2 * dropped * (feverActive ? 2 : 1);
+        sfxDrop();
+        updateHUD();
+      }
+      mergePiece();
+      lastDropTime = performance.now();
+      fallProgress = 0;
+      drawBoard(fallProgress);
+    }
+
+    function rotatePiece() {
+      if (!currentPiece) return;
+      const { shape, x, y } = currentPiece;
+      const rotated = rotate(shape);
+      const kicks = [
+        { dx: 0, dy: 0 },
+        { dx: -1, dy: 0 },
+        { dx: 1, dy: 0 },
+        { dx: -2, dy: 0 },
+        { dx: 2, dy: 0 }
+      ];
+      for (const k of kicks) {
+        if (!collision(rotated, x + k.dx, y + k.dy)) {
+          currentPiece.shape = rotated;
+          currentPiece.x += k.dx;
+          currentPiece.y += k.dy;
+          fallProgress = 0;
+          lastDropTime = performance.now();
+          drawBoard(fallProgress);
+          sfxRotate();
+          return;
+        }
+      }
+    }
+
+    // --- drawing ---
+    function drawBoard(progress) {
+      btx.save();
+
+      if (shakeTimer > 0 && shakeMag > 0) {
+        const dx = (Math.random() * 2 - 1) * shakeMag;
+        const dy = (Math.random() * 2 - 1) * shakeMag;
+        btx.translate(dx, dy);
+      }
+
+      btx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
+
+      // grid
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const x = OFFSET_X + c * BLOCK;
+          const y = OFFSET_Y + r * BLOCK;
+          btx.fillStyle = "#020617";
+          btx.fillRect(x, y, BLOCK, BLOCK);
+          btx.strokeStyle = "rgba(31,41,55,0.9)";
+          btx.lineWidth = 1;
+          btx.strokeRect(x, y, BLOCK, BLOCK);
+        }
+      }
+
+      // danger zone (top 6 rows)
+      for (let r = 0; r < 6; r++) {
+        const y = OFFSET_Y + r * BLOCK;
+        btx.fillStyle = "rgba(248, 113, 113, 0.04)";
+        btx.fillRect(OFFSET_X, y, BOARD_PIXEL_WIDTH, BLOCK);
+      }
+
+      // locked blocks
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const cell = board[r][c];
+          if (cell) {
+            if (cell.type === "G") {
+              drawGarbageBlock(c, r);
+            } else {
+              drawBlock(c, r, cell.color, cell.type);
+            }
+          }
+        }
+      }
+
+      // current piece
+      if (currentPiece) {
+        const { shape, x, y, type } = currentPiece;
+        const color = COLORS[type];
+
+        // ghost
+        let ghostY = y;
+        while (!collision(shape, x, ghostY + 1)) ghostY++;
+        for (let r = 0; r < shape.length; r++) {
+          for (let c = 0; c < shape[r].length; c++) {
+            if (!shape[r][c]) continue;
+            const gx = x + c;
+            const gy = ghostY + r;
+            if (gy >= 0) {
+              const px = OFFSET_X + gx * BLOCK;
+              const py = OFFSET_Y + gy * BLOCK;
+              btx.strokeStyle = "rgba(248, 113, 113, 0.35)";
+              btx.lineWidth = 1;
+              btx.strokeRect(px + 2, py + 2, BLOCK - 4, BLOCK - 4);
+            }
+          }
+        }
+
+        for (let r = 0; r < shape.length; r++) {
+          for (let c = 0; c < shape[r].length; c++) {
+            if (!shape[r][c]) continue;
+            const dx = x + c;
+            const dy = y + r;
+            if (dy >= 0) {
+              const baseY = dy * BLOCK;
+              const visualY = baseY + BLOCK * progress;
+              const px = OFFSET_X + dx * BLOCK;
+              const py = OFFSET_Y + visualY;
+              drawBlockPx(px, py, color, type);
+            }
+          }
+        }
+      }
+
+      // flash rows
+      if (flashTimer > 0 && flashRows.length > 0) {
+        const alpha = flashTimer / 220;
+        btx.fillStyle = `rgba(248, 113, 113, ${0.28 * alpha})`;
+        for (const r of flashRows) {
+          const y = OFFSET_Y + r * BLOCK;
+          btx.fillRect(OFFSET_X, y, BOARD_PIXEL_WIDTH, BLOCK);
+        }
+      }
+
+      // ZON FEVER overlay
+      if (feverActive) {
+        const pulse = 0.35 + 0.1 * Math.sin(Date.now() / 80);
+        btx.fillStyle = `rgba(248, 113, 113, ${pulse})`;
+        btx.globalAlpha = 0.08;
+        btx.fillRect(OFFSET_X, OFFSET_Y, BOARD_PIXEL_WIDTH, BOARD_PIXEL_HEIGHT);
+        btx.globalAlpha = 1;
+      }
+
+      // Game over fade overlay
+      if (gameOver && gameOverAnim > 0) {
+        btx.fillStyle = `rgba(0, 0, 0, ${0.45 * gameOverAnim})`;
+        btx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+        btx.fillStyle = `rgba(248, 113, 113, ${0.25 * gameOverAnim})`;
+        btx.fillRect(OFFSET_X, OFFSET_Y, BOARD_PIXEL_WIDTH, BOARD_PIXEL_HEIGHT);
+      }
+
+      btx.restore();
+    }
+
+    function drawBlock(col, row, color, type) {
+      const x = OFFSET_X + col * BLOCK;
+      const y = OFFSET_Y + row * BLOCK;
+      drawBlockPx(x, y, color, type);
+    }
+
+    function drawGarbageBlock(col, row) {
+      const x = OFFSET_X + col * BLOCK;
+      const y = OFFSET_Y + row * BLOCK;
+      const color = "#4b1111";
+      const grad = btx.createLinearGradient(x, y, x, y + BLOCK);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, "#1f0a0a");
+      btx.fillStyle = grad;
+      btx.fillRect(x + 1, y + 1, BLOCK - 2, BLOCK - 2);
+      btx.strokeStyle = "#000000";
+      btx.lineWidth = 1;
+      btx.strokeRect(x + 1, y + 1, BLOCK - 2, BLOCK - 2);
+    }
+
+    function drawBlockPx(x, y, color, type) {
+      const grad = btx.createLinearGradient(x, y, x, y + BLOCK);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, shadeColor(color, -35));
+      btx.fillStyle = grad;
+      btx.fillRect(x + 1, y + 1, BLOCK - 2, BLOCK - 2);
+
+      btx.shadowColor = "rgba(248,113,113,0.6)";
+      btx.shadowBlur = 8;
+      btx.strokeStyle = "rgba(15,23,42,0.9)";
+      btx.lineWidth = 1;
+      btx.strokeRect(x + 1, y + 1, BLOCK - 2, BLOCK - 2);
+      btx.shadowBlur = 0;
+
+      const cx = x + BLOCK / 2;
+      const cy = y + BLOCK / 2;
+      btx.save();
+      btx.beginPath();
+      btx.rect(x + 2, y + 2, BLOCK - 4, BLOCK - 4);
+      btx.clip();
+
+      btx.strokeStyle = "rgba(15,23,42,0.7)";
+      btx.lineWidth = 2;
+
+      if (type === "I") {
+        btx.beginPath();
+        btx.moveTo(cx, y + 3);
+        btx.lineTo(cx, y + BLOCK - 3);
+        btx.stroke();
+      } else if (type === "O") {
+        btx.beginPath();
+        btx.arc(cx, cy, BLOCK * 0.18, 0, Math.PI * 2);
+        btx.stroke();
+      } else if (type === "T") {
+        btx.beginPath();
+        btx.moveTo(x + 5, cy - 4);
+        btx.lineTo(x + BLOCK - 5, cy - 4);
+        btx.moveTo(cx, cy - 4);
+        btx.lineTo(cx, cy + 6);
+        btx.stroke();
+      } else if (type === "S") {
+        btx.beginPath();
+        btx.moveTo(x + 4, y + BLOCK - 6);
+        btx.lineTo(x + BLOCK - 4, y + 6);
+        btx.stroke();
+      } else if (type === "Z") {
+        btx.beginPath();
+        btx.moveTo(x + 4, y + 6);
+        btx.lineTo(x + BLOCK - 4, y + BLOCK - 6);
+        btx.stroke();
+      } else if (type === "J") {
+        btx.beginPath();
+        btx.moveTo(x + 6, y + 6);
+        btx.lineTo(x + 6, y + BLOCK - 6);
+        btx.lineTo(x + BLOCK - 6, y + BLOCK - 6);
+        btx.stroke();
+      } else if (type === "L") {
+        btx.beginPath();
+        btx.moveTo(x + BLOCK - 6, y + 6);
+        btx.lineTo(x + BLOCK - 6, y + BLOCK - 6);
+        btx.lineTo(x + 6, y + BLOCK - 6);
+        btx.stroke();
+      } else if (type === "X" || type === "U") {
+        btx.fillStyle = "rgba(15,23,42,0.8)";
+        btx.font = "bold 10px system-ui";
+        btx.textAlign = "center";
+        btx.textBaseline = "middle";
+        btx.fillText("Z", cx, cy);
+      }
+
+      btx.restore();
+    }
+
+    function shadeColor(hex, percent) {
+      const num = parseInt(hex.slice(1), 16);
+      const r = (num >> 16) + percent;
+      const g = ((num >> 8) & 0x00FF) + percent;
+      const b = (num & 0x0000FF) + percent;
+      const newR = Math.max(0, Math.min(255, r));
+      const newG = Math.max(0, Math.min(255, g));
+      const newB = Math.max(0, Math.min(255, b));
+      return "#" + ((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1);
+    }
+
+    function drawNext() {
+      ntx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+      if (!nextQueue || !nextQueue.length) return;
+
+      const cellSize = 18;
+      const blockSize = 4;
+
+      nextQueue.forEach((type, idx) => {
+        const shape = SHAPES[type];
+        const color = COLORS[type];
+        const size = shape.length;
+        const offsetX = (nextCanvas.width - cellSize * blockSize) / 2;
+        const offsetY = 6 + idx * 56;
+
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            if (!shape[r][c]) continue;
+            const x = offsetX + c * cellSize;
+            const y = offsetY + r * cellSize;
+
+            const grad = ntx.createLinearGradient(x, y, x, y + cellSize);
+            grad.addColorStop(0, color);
+            grad.addColorStop(1, shadeColor(color, -25));
+            ntx.fillStyle = grad;
+            ntx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+            ntx.strokeStyle = "#020617";
+            ntx.lineWidth = 1;
+            ntx.strokeRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+          }
+        }
+      });
+    }
+
+    function drawHold() {
+      htx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
+      if (!holdPieceType) {
+        htx.strokeStyle = "rgba(148,163,184,0.6)";
+        htx.lineWidth = 1;
+        htx.strokeRect(6, 6, holdCanvas.width - 12, holdCanvas.height - 12);
+        return;
+      }
+      const shape = SHAPES[holdPieceType];
+      const color = COLORS[holdPieceType];
+
+      const size = shape.length;
+      const cellSize = 20;
+      const offsetX = (holdCanvas.width - cellSize * size) / 2;
+      const offsetY = (holdCanvas.height - cellSize * size) / 2;
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (!shape[r][c]) continue;
+          const x = offsetX + c * cellSize;
+          const y = offsetY + r * cellSize;
+
+          const grad = htx.createLinearGradient(x, y, x, y + cellSize);
+          grad.addColorStop(0, color);
+          grad.addColorStop(1, shadeColor(color, -25));
+          htx.fillStyle = grad;
+          htx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+          htx.strokeStyle = "#020617";
+          htx.lineWidth = 1;
+          htx.strokeRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+        }
+      }
+    }
+
+    // --- main loop ---
+    function loop(timestamp) {
+      if (!lastFrameTime) {
+        lastFrameTime = timestamp;
+        lastDropTime = timestamp;
+      }
+      const delta = timestamp - lastFrameTime;
+      lastFrameTime = timestamp;
+
+      if (running && !paused && !gameOver) {
+        elapsedMs += delta;
+
+        // attack mode countdown
+        if (gameMode === "attack") {
+          timeLeftMs -= delta;
+          if (timeLeftMs <= 0) {
+            timeLeftMs = 0;
+            updateHUD();
+            triggerGameOver("Time up! 2-minute attack finished.");
+          }
+        }
+
+        // DAS/ARR movement
+        if (moveDir !== 0 && currentPiece) {
+          moveHeldTime += delta;
+          if (moveHeldTime > DAS_DELAY) {
+            moveRepeatTime += delta;
+            while (moveRepeatTime > ARR_INTERVAL) {
+              movePiece(moveDir, 0);
+              moveRepeatTime -= ARR_INTERVAL;
+            }
+          }
+        }
+
+        // auto drop
+        const sinceDrop = timestamp - lastDropTime;
+        if (sinceDrop >= dropInterval) {
+          softDrop(false);
+          lastDropTime = timestamp;
+          fallProgress = 0;
+        } else {
+          fallProgress = Math.min(1, sinceDrop / dropInterval);
+        }
+
+        // garbage (only endless)
+        if (gameMode === "endless") {
+          garbageTimer -= delta;
+          if (garbageTimer <= 0) {
+            addGarbageRow();
+            garbageTimer = GARBAGE_INTERVAL[difficulty];
+          }
+        }
+
+        // fever timer
+        if (feverActive) {
+          feverTimer -= delta;
+          if (feverTimer <= 0) {
+            feverActive = false;
+            feverMeter = 0;
+          }
+        }
+      } else {
+        fallProgress = 0;
+      }
+
+      // timers
+      if (flashTimer > 0) flashTimer -= delta;
+      if (shakeTimer > 0) shakeTimer -= delta;
+      if (comboTimer > 0) {
+        comboTimer -= delta;
+        if (comboTimer <= 0) {
+          comboTimer = 0;
+          comboText.textContent = "";
+        } else if (combo > 1) {
+          comboText.textContent = "COMBO x" + combo.toFixed(2);
+        }
+      }
+
+      if (gameOver) {
+        gameOverAnim = Math.min(1, gameOverAnim + delta / 600);
+      }
+
+      updateHUD();
+      drawBoard(fallProgress);
+      requestAnimationFrame(loop);
+    }
+
+    // --- init ---
+    setDifficulty("normal");
+    setGameMode("endless");
+    resetGame();
+    renderLeaderboard();
+    renderAchievements();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
